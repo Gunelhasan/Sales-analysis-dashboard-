@@ -1,0 +1,54 @@
+# This script is used to import CSV data into SQL using Python.
+
+import pandas as pd
+pip install pyodbc
+status = 1 # if status is 1 everything is okay. if 0 then something is wrong
+
+df = pd.read_csv (r'C:\Users\Admin\OneDrive\Desktop\Final\ProductSalesBonusDate.csv')
+
+#Connection
+conn = pyodbc.connect(r'Driver={ODBC Driver 17 for SQL Server};Server=localhost\SQLEXPRESS;Database=AdventureWorks2022;Trusted_Connection=yes;')
+cursor = conn.cursor()
+
+# Here is out Create table query
+create_table_query = """
+Create table Sales.Stores2 
+  (
+	ProductID int,
+	BonusPerQty float,
+	StartDate date,
+	EndDate date,
+	Owner nvarchar(100)
+
+  );
+"""
+try:
+    cursor.execute(create_table_query)
+    conn.commit()
+except:
+        print("Your table is already exist. Previous Data will be truncated.")
+        try:
+            print("Truncation was started")
+            truncate_table_query = "Truncate table Sales.Stores2;"
+            cursor.execute(truncate_table_query)
+            conn.commit()
+            print("Truncation was done")
+        except: 
+            print("Something is wrong")
+            status = 0
+            
+finally:
+    print("Insertion was started")
+    if status == 1:
+        for  index, row in df.iterrows():
+            cursor.execute(
+                "INSERT INTO Sales.Stores2  VALUES (?, ?, ?, ?, ?)",
+                row['ProductID'], row['BonusPerQty'],row['StartDate'], row['EndDate'],row['Owner']
+            )
+        print("Insertion was done")
+    else:
+        print("Something went wrong in previous steps")
+    conn.commit()
+    cursor.close()
+    conn.close()
+    print("All finished! Enjoy it!")
