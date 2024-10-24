@@ -1,0 +1,13 @@
+#creating view 
+select 
+	FP.ProductID, 
+	FP.BonusPerQty, 
+	FP.StartDate,
+	FP.EndDate,
+	SOD.SalesOrderID, 
+	SOD.SalesOrderDetailID, 
+	SOD.OrderQty, 
+	SOD.UnitPrice, 
+	SOD.LineTotal 
+from Sales.FinalProject FP
+left join Sales.SalesOrderDetail SOD on SOD.ProductID = FP.ProductID
